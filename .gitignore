@@ -1,0 +1,16 @@
+# --- Build .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.tmp
+
+# --- Secrets : ne jamais versionner
+*.keystore
+*.jks
+*.pfx
+*.p12
+.env
+.env.*
+

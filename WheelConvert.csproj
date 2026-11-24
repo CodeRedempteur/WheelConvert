@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\WheelConvert.ico</ApplicationIcon>
+    <AssemblyName>WheelConvert</AssemblyName>
+    <RootNamespace>WheelConvert</RootNamespace>
+    <StartupObject>WheelConvert.Program</StartupObject>
+    <Product>WheelConvert</Product>
+    <Version>2.0.0</Version>
+    <!-- Thème Fluent (WPF .NET 9+) encore marqué expérimental -->
+    <NoWarn>$(NoWarn);WPF0001</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\WheelConvert.ico" />
+  </ItemGroup>
+
+  <!-- Anciens fichiers v1 à la racine : ignorés s'ils traînent encore (doublons de Core\ et UI\) -->
+  <ItemGroup>
+    <Compile Remove="MouseHook.cs;ImageConverter.cs;WheelWindow.xaml.cs;WheelWindow_xaml.cs" />
+    <Page Remove="WheelWindow.xaml" />
+    <None Remove="WheelWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Images : AVIF, HEIC, WEBP, JPEG, TIFF, BMP, GIF, ICO, PDF... -->
+    <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="14.*" />
+    <!-- 3D : import FBX, GLB/GLTF, PLY, DAE, 3DS (STL/OBJ/3MF sont gérés en interne) -->
+    <PackageReference Include="AssimpNet" Version="4.1.0" />
+    <!-- QR codes et codes-barres : lecture dans une image ou à l'écran -->
+    <PackageReference Include="ZXing.Net" Version="0.16.*" />
+  </ItemGroup>
+
+</Project>

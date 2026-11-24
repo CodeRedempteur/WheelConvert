@@ -1,0 +1,284 @@
+<Window x:Class="WheelConvert.UI.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WheelConvert — Designer"
+        Width="1080" Height="700" MinWidth="920" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,14,0,6" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="Section" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,20,0,8" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Opacity" Value="0.65" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,4,0,0" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24,20,24,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- En-tête -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Image x:Name="LogoImage" Width="40" Height="40" Margin="0,0,14,0" />
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="WheelConvert" FontSize="22" FontWeight="SemiBold" />
+                <TextBlock Text="Glisser + secouer (ou Shift) · Shift + clic droit maintenu · Ctrl + Alt + Espace" Opacity="0.65" />
+            </StackPanel>
+        </StackPanel>
+
+        <TabControl Grid.Row="1">
+
+            <!-- ===================== Actions rapides ===================== -->
+            <TabItem Header="Roues d'actions">
+                <Grid Margin="0,14,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="330" />
+                        <ColumnDefinition Width="250" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+
+                    <!-- Barre des roues : choisir, nommer, ajouter, réordonner, supprimer -->
+                    <Border Grid.Row="0" Grid.ColumnSpan="3" CornerRadius="10" Padding="12,10" Margin="0,0,0,14"
+                            BorderThickness="1" BorderBrush="#30808080">
+                        <WrapPanel VerticalAlignment="Center">
+                            <TextBlock Text="Roue" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0" />
+                            <ComboBox x:Name="WheelBox" Width="210" SelectionChanged="OnWheelSelected" Margin="0,0,14,0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Glyph}" FontFamily="Segoe UI Emoji" Margin="0,0,8,0" />
+                                            <TextBlock Text="{Binding Name}" />
+                                            <!-- Roues Stream Deck : nom du fournisseur (vide pour les roues WheelConvert) -->
+                                            <TextBlock Text="{Binding Provider, StringFormat='  ·  {0}'}" Opacity="0.55" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBlock Text="Nom" VerticalAlignment="Center" Margin="0,0,6,0" Opacity="0.7" />
+                            <TextBox x:Name="WheelNameBox" Width="160" Margin="0,0,10,0"
+                                     Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="Icône" VerticalAlignment="Center" Margin="0,0,6,0" Opacity="0.7" />
+                            <TextBox x:Name="WheelGlyphBox" Width="54" FontFamily="Segoe UI Emoji" Margin="0,0,14,0"
+                                     Text="{Binding Glyph, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Content="＋ Nouvelle roue" Click="OnAddWheel" Margin="0,0,6,0" />
+                            <Button x:Name="WheelLeftButton" Content="◀" Click="OnWheelLeft" Margin="0,0,6,0" ToolTip="Déplacer avant" />
+                            <Button x:Name="WheelRightButton" Content="▶" Click="OnWheelRight" Margin="0,0,6,0" ToolTip="Déplacer après" />
+                            <Button x:Name="DeleteWheelButton" Content="Supprimer la roue" Click="OnDeleteWheel" />
+                            <TextBlock x:Name="ExternalHint" Visibility="Collapsed" VerticalAlignment="Center" Margin="14,0,0,0" Opacity="0.75"
+                                       Text="🔒  Roue Stream Deck : lecture seule — modifiable dans Stream Deck Script Builder (onglet Roues)" />
+                        </WrapPanel>
+                    </Border>
+
+                    <!-- Aperçu -->
+                    <Border Grid.Row="1" Grid.Column="0" CornerRadius="10" Padding="14" Background="#FF26262C" Margin="0,0,16,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Viewbox x:Name="PreviewHost" Stretch="Uniform" MaxWidth="300" MaxHeight="300" />
+                            <TextBlock Grid.Row="1" Text="Aperçu en direct — clique un secteur pour l'éditer · molette pour voir les autres roues"
+                                       Foreground="#B0FFFFFF" FontSize="12" HorizontalAlignment="Center"
+                                       TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,0" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Liste -->
+                    <DockPanel Grid.Row="1" Grid.Column="1" Margin="0,0,16,0">
+                        <WrapPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                        <WrapPanel x:Name="ListButtons" Orientation="Horizontal">
+                            <Button Content="＋ Ajouter" Click="OnAdd" Margin="0,0,6,6" />
+                            <Button Content="Dupliquer" Click="OnDuplicate" Margin="0,0,6,6" />
+                            <Button Content="▲" Click="OnUp" Margin="0,0,6,6" ToolTip="Monter" />
+                            <Button Content="▼" Click="OnDown" Margin="0,0,6,6" ToolTip="Descendre" />
+                            <Button Content="Supprimer" Click="OnDelete" Margin="0,0,6,6" />
+                        </WrapPanel>
+                        </WrapPanel>
+                        <ListBox x:Name="ActionList" SelectionChanged="OnSelectionChanged">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                                        <Border Width="30" Height="30" CornerRadius="15" Background="{Binding Color}" Margin="0,0,10,0">
+                                            <TextBlock Text="{Binding Glyph}" FontFamily="Segoe UI Emoji" Foreground="White"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
+                    <!-- Éditeur -->
+                    <ScrollViewer Grid.Row="1" Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="EditorPanel" Margin="0,0,8,0">
+                            <TextBlock Text="Nom" Style="{StaticResource FieldLabel}" Margin="0,0,0,6" />
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Icône" Style="{StaticResource FieldLabel}" />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Width="80" FontFamily="Segoe UI Emoji" FontSize="16"
+                                         Text="{Binding Glyph, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="un emoji ou 1–2 lettres" Style="{StaticResource Hint}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                            </StackPanel>
+                            <WrapPanel x:Name="EmojiPanel" Margin="0,8,0,0" />
+
+                            <TextBlock Text="Type d'action" Style="{StaticResource FieldLabel}" />
+                            <ComboBox x:Name="TypeBox" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                      SelectedValue="{Binding Type}" />
+
+                            <TextBlock x:Name="TargetLabel" Text="Cible" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="TargetBox" Text="{Binding Target, UpdateSourceTrigger=PropertyChanged}" />
+                                <ComboBox x:Name="WheelTargetBox" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                          SelectionChanged="OnWheelTargetChanged" Visibility="Collapsed" />
+                                <Button x:Name="BrowseButton" Grid.Column="1" Content="Parcourir…" Click="OnBrowse" Margin="8,0,0,0" />
+                            </Grid>
+                            <TextBlock x:Name="TargetHint" Style="{StaticResource Hint}" />
+
+                            <TextBlock x:Name="ArgsLabel" Text="Arguments" Style="{StaticResource FieldLabel}" />
+                            <TextBox x:Name="ArgsBox" Text="{Binding Arguments, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <TextBlock Text="Couleur" Style="{StaticResource FieldLabel}" />
+                            <WrapPanel x:Name="ColorPanel" />
+
+                            <Button Content="▶  Tester l'action" Click="OnTest" HorizontalAlignment="Left" Margin="0,18,0,8" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- ===================== Général ===================== -->
+            <TabItem Header="Général">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,6,0,0" MaxWidth="680" HorizontalAlignment="Left">
+                        <TextBlock Text="Déclenchement" Style="{StaticResource Section}" />
+                        <CheckBox x:Name="ShakeBox" Content="Secouer des fichiers pendant le glisser ouvre la roue de conversion" Margin="0,4" />
+                        <CheckBox x:Name="ShiftDragBox" Content="Appuyer sur Shift pendant le glisser ouvre la roue de conversion" Margin="0,4" />
+                        <CheckBox x:Name="QuickOnEmptyBox" Content="Shift + clic droit maintenu ouvre la roue d'actions (dans toutes les fenêtres)" Margin="0,4" />
+                        <CheckBox x:Name="DebugBox" Content="Journal de diagnostic (log.txt dans le dossier des paramètres)" Margin="0,4" />
+
+                        <TextBlock Text="Stream Deck" Style="{StaticResource Section}" />
+                        <CheckBox x:Name="RememberWheelBox" Content="Rouvrir la dernière roue utilisée (sinon toujours la première)" Margin="0,4" />
+                        <CheckBox x:Name="ExternalBox" Content="Afficher les roues envoyées par Stream Deck" Margin="0,4" />
+                        <TextBlock x:Name="ExternalStatus" TextWrapping="Wrap" Margin="0,6,0,0" />
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Les roues Stream Deck se configurent dans Stream Deck Script Builder (onglet « Roues »). Elles s'ajoutent après tes roues : molette pour passer de l'une à l'autre." />
+                        <CheckBox x:Name="HotkeyBox" Content="Raccourci Ctrl + Alt + Espace pour la roue d'actions" Margin="0,4" />
+                        <CheckBox x:Name="StartupBox" Content="Lancer WheelConvert au démarrage de Windows" Margin="0,4" />
+                        <CheckBox x:Name="NotifBox" Content="Notification à la fin de chaque conversion" Margin="0,4" />
+                        <CheckBox x:Name="RevealBox" Content="Ouvrir le dossier et sélectionner le fichier converti" Margin="0,4" />
+
+                        <TextBlock Text="ZIP propre (dossier de projet)" Style="{StaticResource Section}" />
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,6"
+                                   Text="Glisse un dossier puis Shift → secteur 🧹 « ZIP propre ». Les dossiers listés sont exclus à toute profondeur (src/Projet1/bin, src/Projet2/obj…). Séparer par des points-virgules." />
+                        <TextBlock Text="Dossiers exclus" Style="{StaticResource FieldLabel}" />
+                        <TextBox x:Name="CleanFoldersBox" TextWrapping="Wrap" AcceptsReturn="False" MinHeight="54" />
+                        <TextBlock Text="Fichiers exclus (* et ? acceptés)" Style="{StaticResource FieldLabel}" />
+                        <TextBox x:Name="CleanFilesBox" TextWrapping="Wrap" AcceptsReturn="False" MinHeight="54" />
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <TextBlock Text="Ignorer les fichiers de plus de" VerticalAlignment="Center" />
+                            <TextBox x:Name="CleanMaxBox" Width="70" Margin="8,0" />
+                            <TextBlock Text="Mo  (0 = aucune limite)" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <Button Content="Rétablir les listes par défaut" Click="OnResetCleanZip" HorizontalAlignment="Left" Margin="0,10,0,0" />
+
+                        <TextBlock Text="Fichiers convertis" Style="{StaticResource Section}" />
+                        <RadioButton x:Name="NextToRadio" GroupName="Output" Content="À côté du fichier d'origine" Margin="0,4" />
+                        <StackPanel Orientation="Horizontal" Margin="0,4">
+                            <RadioButton x:Name="SubRadio" GroupName="Output" Content="Dans un sous-dossier :" VerticalAlignment="Center" />
+                            <TextBox x:Name="SubFolderBox" Width="200" Margin="10,0,0,0" />
+                        </StackPanel>
+
+                        <TextBlock Text="Qualité JPG" Style="{StaticResource FieldLabel}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="50" />
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="JpegSlider" Minimum="50" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{Binding Value, ElementName=JpegSlider, StringFormat={}{0:0}}"
+                                       VerticalAlignment="Center" HorizontalAlignment="Right" />
+                        </Grid>
+
+                        <TextBlock Text="Qualité WEBP" Style="{StaticResource FieldLabel}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="50" />
+                            </Grid.ColumnDefinitions>
+                            <Slider x:Name="WebpSlider" Minimum="50" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{Binding Value, ElementName=WebpSlider, StringFormat={}{0:0}}"
+                                       VerticalAlignment="Center" HorizontalAlignment="Right" />
+                        </Grid>
+
+                        <TextBlock Text="FFmpeg (vidéo et audio)" Style="{StaticResource Section}" />
+                        <TextBlock x:Name="FfmpegStatus" TextWrapping="Wrap" />
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="FfmpegBox" />
+                            <Button Grid.Column="1" Content="Parcourir…" Click="OnBrowseFfmpeg" Margin="8,0,0,0" />
+                        </Grid>
+                        <TextBlock Text="Laisse vide pour la détection automatique (dossier de l'app, winget, PATH)." Style="{StaticResource Hint}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Content="Installer FFmpeg (winget)" Click="OnInstallFfmpeg" />
+                            <Button Content="Revérifier" Click="OnCheckFfmpeg" Margin="8,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== Conversions ===================== -->
+            <TabItem Header="Conversions">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,6,0,0" MaxWidth="760" HorizontalAlignment="Left">
+                        <TextBlock Text="🖼  Images" Style="{StaticResource Section}" />
+                        <TextBlock TextWrapping="Wrap" Text="JPG, PNG, WEBP, AVIF, HEIC, BMP, TIFF, GIF, ICO, TGA, JXL, PSD → PNG · JPG · WEBP · ICO multi-tailles · PDF (fusion des images sélectionnées) · Réduire de 50 %" />
+                        <TextBlock Text="🎬  Vidéos  (FFmpeg)" Style="{StaticResource Section}" />
+                        <TextBlock TextWrapping="Wrap" Text="MP4, MOV, MKV, AVI, WEBM, WMV, FLV… → MP4 H.264 · MP3 (piste audio) · GIF animé · WEBM VP9 · 720p compressé · Miniature PNG" />
+                        <TextBlock Text="🎵  Audio  (FFmpeg)" Style="{StaticResource Section}" />
+                        <TextBlock TextWrapping="Wrap" Text="MP3, WAV, FLAC, M4A, AAC, OGG, OPUS, WMA, AIFF → MP3 · WAV · FLAC · M4A · OGG" />
+                        <TextBlock Text="🧊  Modèles 3D" Style="{StaticResource Section}" />
+                        <TextBlock TextWrapping="Wrap" Text="STL, OBJ, 3MF, PLY, FBX, GLB, GLTF, DAE, 3DS → STL binaire · 3MF · OBJ · PLY (géométrie uniquement, unités en millimètres)" />
+                        <TextBlock Text="📦  Tous les fichiers et dossiers" Style="{StaticResource Section}" />
+                        <TextBlock TextWrapping="Wrap" Text="ZIP · Copier les chemins · SHA-256 (fichiers non reconnus)" />
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,20,0,0"
+                                   Text="Sélection mixte : la roue s'adapte au type majoritaire ; ZIP et Chemin s'appliquent à toute la sélection. Les originaux ne sont jamais modifiés ni déplacés." />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Pied -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Annuler" Click="OnCancel" MinWidth="110" Margin="0,0,8,0" />
+            <Button Content="Enregistrer" Click="OnSave" MinWidth="130" IsDefault="True"
+                    Style="{DynamicResource AccentButtonStyle}" />
+        </StackPanel>
+    </Grid>
+</Window>

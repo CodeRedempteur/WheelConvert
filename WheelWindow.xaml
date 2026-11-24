@@ -1,0 +1,14 @@
+<Window x:Class="WheelConvert.WheelWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WheelConvert"
+        Width="260" Height="260" Left="-10000" Top="-10000"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False"
+        ShowActivated="False" Focusable="False"
+        AllowDrop="True"
+        DragEnter="OnDragOver" DragOver="OnDragOver" DragLeave="OnDragLeave" Drop="OnDrop">
+    <Viewbox Stretch="Uniform">
+        <Canvas x:Name="Wheel" Width="260" Height="260" />
+    </Viewbox>
+</Window>
